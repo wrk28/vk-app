@@ -1,0 +1,14 @@
+# Mac system files
+.DS_Store
+
+# Windows system files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Project files
+config.ini
+.vscode/
+.venv/
+__pycache__/
