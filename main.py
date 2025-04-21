@@ -13,10 +13,10 @@ if __name__ == '__main__':
     try:
 
         if settings.auto_remove:
-            db_utils.remove_database()
+            data_service.remove_database()
             
         if settings.auto_create:
-            db_utils.create_database()
+            data_service.create_database()
 
     except Exception as e:
         print(Content.PROGRAM_STOPPED.format(error=e))
