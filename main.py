@@ -1,13 +1,11 @@
 from config import settings
 from content import Content
-from models import Base
-from database import DB_Utils
+from database import db_utils
 from services import Data_Service
 
 
 if __name__ == '__main__':
     
-    db_utils = DB_Utils(base=Base, dsn=settings.dsn)
     data_service = Data_Service(token=settings.token, db_utils=db_utils)
 
     try:

@@ -1,5 +1,7 @@
 import sqlalchemy as sq
 from sqlalchemy.orm import sessionmaker
+from models import Base
+from config import settings
 
 
 class DB_Utils:
@@ -26,3 +28,6 @@ class DB_Utils:
 
     def close(self):
         self._close_session()
+
+
+db_utils = DB_Utils(base=Base, dsn=settings.dsn)
