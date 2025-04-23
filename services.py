@@ -11,6 +11,15 @@ class Data_Service:
         """Завершение работы с базой данных"""
         self.db_utils.close()
 
+    def next_account(self, user_id: str) -> dict:
+        return None
+
+    def add_to_favourites(self, account: dict) -> bool:
+        return None
+
+    def show_favourites(self, user_id: str) -> list:
+        return None
+
     def create_database(self):
         """Создать базу данных"""
         self.db_utils.create_database()

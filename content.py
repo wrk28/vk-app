@@ -9,6 +9,9 @@ class Content:
         with open('content.json', 'r') as f:
             content = json.load(f)
         cls.PROGRAM_STOPPED = content['program_stopped']
+        cls.BOT_COMMAND_NEXT = content['bot_command_next']
+        cls.BOT_ADD_FAVOURITES = content['bot_command_add_favourites']
+        cls.BOT_SHOW_FAVOURITES = content['bot_command_show_favourites']
 
 
 Content.initialize()
