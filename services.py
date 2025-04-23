@@ -26,6 +26,12 @@ class Data_Service:
     def show_favourites(self, user_id: str) -> list:
         return None
     
+    def check_user(self, user_id: str):
+        user_exists = self.db_utils.check_user(user_id=user_id)
+        if not user_exists:
+            user_info = self._user_info(user_id=user_id)
+            self.db_utils.add_user(user_info=user_info)
+    
     def _fetch_account(self, user_info: dict, offsett: int) -> dict:
         pass
     

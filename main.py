@@ -21,15 +21,25 @@ class BotMessages:
         self.bot_api = bot_api
         self.user_id = user_id
 
+        self.start_keyboard = VkKeyboard()
+        self.start_keyboard.add_button('Начать', VkKeyboardColor.PRIMARY)
+
         self.keyboard = VkKeyboard()
         self.keyboard.add_button(BotCommands.NEXT, VkKeyboardColor.PRIMARY)
         self.keyboard.add_button(BotCommands.ADD_FAVOURITES, VkKeyboardColor.SECONDARY)
         self.keyboard.add_button(BotCommands.SHOW_FAVOURITES, VkKeyboardColor.SECONDARY)
+        
 
     def _random_id(self) -> int:
         return randint(1, 2**63-1)
+    
+    def start_message(self, message: str):
+        self.bot_api.messages.send(user_id=self.user_id, 
+                          message=message, 
+                          random_id=self._random_id(), 
+                          keyboard=self.start_keyboard.get_keyboard())
 
-    def messsage(self, message: str):
+    def message(self, message: str):
         self.bot_api.messages.send(user_id=self.user_id, 
                           message=message, 
                           random_id=self._random_id(), 
@@ -57,24 +67,29 @@ if __name__ == '__main__':
         for event in poll.listen():
             if event.type == VkEventType.MESSAGE_NEW:
                 if event.to_me:
+                    
                     request = event.text
+                    new_user = data_service.check_user(user_id=event.user_id)
                     bot = BotMessages(bot_api=bot_api, user_id=event.user_id)
 
-                    if request == BotCommands.NEXT:
-                        bot.messsage('Выбрано "Следующий"')
+                    if new_user:
+                        bot.start_message(Content.BOT_START_MESSAGE)
+
+                    elif request == BotCommands.NEXT:
                         account = data_service.next_account(user_id=bot.user_id)
+                        bot.message('Данные')
 
                     elif request == BotCommands.ADD_FAVOURITES:
-                        bot.messsage('Выбрано "В избранное"')
+                        bot.message('Выбрано "В избранное"')
                         current_account = {}
                         data_service.add_to_favourites(account=current_account)
 
                     elif request == BotCommands.SHOW_FAVOURITES:
-                        bot.messsage('Выбрано "Показать избранное"')
+                        bot.message('Выбрано "Показать избранное"')
                         data_service.show_favourites(user=bot.bot_api)
 
                     else:
-                        bot.messsage('Выберите "Следующий" для начала поиска')
+                        bot.message('Выберите "Следующий" для начала поиска')
 
     except Exception as e:
         print(Content.PROGRAM_STOPPED.format(error=e))

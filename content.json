@@ -1,4 +1,5 @@
 {
+    "bot_start_message": "Добро пожаловать! Выберите \"Начать\" для поиска",
     "bot_command_next": "Следующий",
     "bot_command_add_favourites": "В избранное",
     "bot_command_show_favourites": "Показать избранное",

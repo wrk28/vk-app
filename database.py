@@ -6,16 +6,16 @@ import models as m
 
 class DB_Utils:
 
-    def __init__(self, base, dsn):
+    def __init__(self, base, dsn) -> None:
         self.base = base
         self.engine = sq.create_engine(dsn)
         self.Session = sessionmaker()
         self.session = None
 
-    def _start_session(self):
+    def _start_session(self) -> None:
         self.session = self.Session()
 
-    def _close_session(self):
+    def _close_session(self) -> None:
         if self.session:
             self.session.close()
         self.session = None
@@ -24,17 +24,20 @@ class DB_Utils:
         # Ищет в базе пользователя с user_id, если не находит, то создаёт и устанавливает значения поля offset
         # равным 0, если находит, то увеличивает значение offset на 1. В обоих случаях возвращает offset до увеличения
         return None
+    
+    def check_user(self, user_id: str) -> bool:
+        pass
 
-    def create_database(self):
+    def create_database(self) -> None:
         self.base.metadata.create_all(self.engine)
 
-    def remove_database(self):
+    def remove_database(self) -> None:
         self.base.metadata.drop_all(self.engine)
 
-    def close(self):
+    def close(self) -> None:
         self._close_session()
 
-    def add_user_vkinder(self, id_user, name, surname, age, sex, city):
+    def add_user(self, user_info: dict) -> None:
         '''
         Функция добавляет пользователя в базу данных.
         В данном случае user_vkinder - это пользователь, который ищет пару.
@@ -46,13 +49,14 @@ class DB_Utils:
         :param age: возраст пользователя
         :param city: город пользователя
         '''
-        with self.session as session:
-            user_find = session.query(m.User_VKinder.id_user).all()
-            if id_user not in [user[0] for user in user_find]:
-                user = m.User_VKinder(id_user=id_user, name=name, surname=surname, age=age,
-                                      sex=sex,  city=city)
-                session.add(user)
-                session.commit()
+
+        # with self.session as session:
+        #     user_find = session.query(m.User_VKinder.id_user).all()
+        #     if id_user not in [user[0] for user in user_find]:
+        #         user = m.User_VKinder(id_user=id_user, name=name, surname=surname, age=age,
+        #                               sex=sex,  city=city)
+        #         session.add(user)
+        #         session.commit()
 
     def add_requests(self, user_id, requests_id, name, surname, age, sex, city, link):
         '''
