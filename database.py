@@ -20,8 +20,8 @@ class DB_Utils:
             self.session.close()
         self.session = None
 
-    def get_offset(self, user_id: str):
-        pass
+    def get_offset(self, user_id: str) -> int:
+        return None
 
     def create_database(self):
         self.base.metadata.create_all(self.engine)
