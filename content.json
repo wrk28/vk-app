@@ -1,3 +1,6 @@
 {
+    "bot_command_next": "Следующий",
+    "bot_command_add_favourites": "В избранное",
+    "bot_command_show_favourites": "Показать избранное",
     "program_stopped": "Программа была остановленна из-за ошибки: {error}"
 }
