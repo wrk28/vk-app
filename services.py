@@ -23,8 +23,9 @@ class Data_Service:
     def add_to_favourites(self, account: dict) -> bool:
         return None
 
-    def show_favourites(self, user_id: str) -> list:
-        return None
+    def get_favourites(self, user_id: str) -> list:
+        favourites = self.db_utils.get_favourites(user_id=user_id)
+        return favourites
     
     def check_user(self, user_id: str):
         user_exists = self.db_utils.check_user(user_id=user_id)
@@ -33,6 +34,15 @@ class Data_Service:
             self.db_utils.add_user(user_info=user_info)
     
     def _fetch_account(self, user_info: dict, offsett: int) -> dict:
+        pass
+        account = {}
+        photos = self._fetch_photos(account=account)
+        for photo in photos:
+            self.db_utils.add_photo(photo)
+        self.db_utils.add_requests(user_id=user_info['user_id'], account=account)
+        return account
+    
+    def _fetch_photos(self, account: dict):
         pass
     
     def _user_info(self, user_id):

@@ -17,7 +17,7 @@ class BotCommands:
 
 class BotMessages:
 
-    def __init__(self, bot_api: VkApiMethod, user_id: str):
+    def __init__(self, bot_api: VkApiMethod, user_id: str) -> None:
         self.bot_api = bot_api
         self.user_id = user_id
 
@@ -33,20 +33,21 @@ class BotMessages:
     def _random_id(self) -> int:
         return randint(1, 2**63-1)
     
-    def start_message(self, message: str):
+    def start_message(self, message: str) -> None:
         self.bot_api.messages.send(user_id=self.user_id, 
                           message=message, 
                           random_id=self._random_id(), 
                           keyboard=self.start_keyboard.get_keyboard())
 
-    def message(self, message: str):
+    def message(self, message: str) -> None:
         self.bot_api.messages.send(user_id=self.user_id, 
                           message=message, 
                           random_id=self._random_id(), 
                           keyboard=self.keyboard.get_keyboard())
 
-    def message_photo(self):
-        pass
+    def message_photos(self, photos: list) -> None:
+        for item in photos:
+            item
     
 
 if __name__ == '__main__':
@@ -86,7 +87,11 @@ if __name__ == '__main__':
 
                     elif request == BotCommands.SHOW_FAVOURITES:
                         bot.message('Выбрано "Показать избранное"')
-                        data_service.show_favourites(user=bot.bot_api)
+                        # favourites = {"data": None, "photos": []}
+                        favourites = data_service.get_favourites(user=bot.bot_api)
+                        for item in favourites:
+                            bot.message(item.data)
+                            bot.message_photos(item.photos)
 
                     else:
                         bot.message('Выберите "Следующий" для начала поиска')

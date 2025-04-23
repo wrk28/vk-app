@@ -28,6 +28,9 @@ class DB_Utils:
     def check_user(self, user_id: str) -> bool:
         pass
 
+    def get_favourites(self, user_id: str) -> list:
+        pass
+
     def create_database(self) -> None:
         self.base.metadata.create_all(self.engine)
 
@@ -58,7 +61,7 @@ class DB_Utils:
         #         session.add(user)
         #         session.commit()
 
-    def add_requests(self, user_id, requests_id, name, surname, age, sex, city, link):
+    def add_requests(self, user_id, account):
         '''
         Функция добавляет запрос в базу данных.
         В данном случае requests - это предложенный пользователю человек из поиска.
@@ -72,19 +75,19 @@ class DB_Utils:
         :param city: город предложения
         :param link: ссылка на пользователя по запросу
         '''
-        with self.session as session:
-            requests_find = session.query(m.Requests.requests_id).all()
-            if requests_id not in [req[0] for req in requests_find]:
-                request = m.Requests(requests_id=requests_id, name=name,
-                                      surname=surname, age=age, sex=sex, city=city, link=link)
-                session.add(request)
-            user_request_find = session.query(m.User_requests.requests_user_id).\
-                filter(m.User_requests.user_id == user_id).\
-                filter(m.User_requests.requests_id == requests_id).all()
-            if len(user_request_find) == 0:
-                user_request = m.User_requests(user_id=user_id, requests_id=requests_id)
-                session.add(user_request)
-            session.commit()
+        # with self.session as session:
+        #     requests_find = session.query(m.Requests.requests_id).all()
+        #     if requests_id not in [req[0] for req in requests_find]:
+        #         request = m.Requests(requests_id=requests_id, name=name,
+        #                               surname=surname, age=age, sex=sex, city=city, link=link)
+        #         session.add(request)
+        #     user_request_find = session.query(m.User_requests.requests_user_id).\
+        #         filter(m.User_requests.user_id == user_id).\
+        #         filter(m.User_requests.requests_id == requests_id).all()
+        #     if len(user_request_find) == 0:
+        #         user_request = m.User_requests(user_id=user_id, requests_id=requests_id)
+        #         session.add(user_request)
+        #     session.commit()
 
     def add_favorite(self, user_id, requests_id):
         '''
