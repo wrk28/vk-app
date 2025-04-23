@@ -20,8 +20,10 @@ class DB_Utils:
             self.session.close()
         self.session = None
 
-    def get_offset(self, user_id: str):
-        pass
+    def get_offset(self, user_id: str) -> int:
+        # Ищет в базе пользователя с user_id, если не находит, то создаёт и устанавливает значения поля offset
+        # равным 0, если находит, то увеличивает значение offset на 1. В обоих случаях возвращает offset до увеличения
+        return None
 
     def create_database(self):
         self.base.metadata.create_all(self.engine)
