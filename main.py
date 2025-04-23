@@ -63,7 +63,6 @@ if __name__ == '__main__':
                     if request == BotCommands.NEXT:
                         bot.messsage('Выбрано "Следующий"')
                         account = data_service.next_account(user_id=bot.user_id)
-                        print(account)
 
                     elif request == BotCommands.ADD_FAVOURITES:
                         bot.messsage('Выбрано "В избранное"')

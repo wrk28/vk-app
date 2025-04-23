@@ -26,7 +26,7 @@ class Data_Service:
     def show_favourites(self, user_id: str) -> list:
         return None
     
-    def fetch_account(self, user_info: dict, offsett: int) -> dict:
+    def _fetch_account(self, user_info: dict, offsett: int) -> dict:
         pass
     
     def _user_info(self, user_id):
