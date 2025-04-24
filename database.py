@@ -20,6 +20,21 @@ class DB_Utils:
         return result
     
 
+    def get_last_requests_id(self, user_id: str) -> int:
+        with self.Session() as session:
+            offset = session.query(User.offset).filter(User.user_id == user_id).one_or_none()[0]
+            requests_id = session.query(User_requests.requests_id).\
+                filter(User_requests.user_id == user_id, User_requests.number == offset).one_or_none()[0]
+        return requests_id
+    
+
+    def get_requests_name(self, requests_id: str) -> tuple:
+        with self.Session() as session:
+            name = session.query(Requests.first_name, Requests.last_name).\
+                filter(Requests.requests_id == requests_id).one_or_none()
+        return name
+    
+
     def check_user(self, user_id: str) -> bool:
         with self.Session() as session:
             result = session.query(User).filter(User.user_id == user_id).one_or_none()
@@ -82,7 +97,8 @@ class DB_Utils:
             result = session.query(m.User_requests.requests_id).filter(User_requests.user_id == user_id, 
                                                                        User_requests.requests_id==requests_id).one_or_none()
             if not result:
-                new_user_requests = m.User_requests(user_id=user_id, requests_id=requests_id)
+                count = session.query(func.count(User_requests.user_id)).filter(User_requests.user_id==user_id).scalar() + 1
+                new_user_requests = m.User_requests(user_id=user_id, requests_id=requests_id, number=count)
                 session.add(new_user_requests)
                 session.commit()
 
@@ -95,11 +111,10 @@ class DB_Utils:
         :param user_id: id пользователя
         :param requests_id: id предложения
         '''
-        with self.session as session:
-            session.query(m.User_requests). \
-                filter(m.User_requests.requests_id == requests_id). \
-                filter(m.User_requests.user_id == user_id). \
-                update({'favorite_list': 1})
+        with self.Session() as session:
+            session.execute(sq.update(m.User_requests). \
+                            where(m.User_requests.user_id == user_id, m.User_requests.requests_id == requests_id). \
+                                values(favorite_list = 1))
             session.commit()
 
     def add_photo(self, requests_id, photo_url):

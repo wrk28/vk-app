@@ -12,6 +12,7 @@ class Content:
         cls.BOT_START_MESSAGE = content['bot_start_message']
         cls.BOT_COMMAND_NEXT = content['bot_command_next']
         cls.BOT_ADD_FAVOURITES = content['bot_command_add_favourites']
+        cls.ADDED_TO_FAVOURITES = content['added_to_favourites']
         cls.BOT_SHOW_FAVOURITES = content['bot_command_show_favourites']
 
 

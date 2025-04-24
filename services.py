@@ -15,25 +15,33 @@ class Data_Service:
         """Завершение работы с базой данных"""
         pass
 
+
     def next_account(self, user_id: str) -> dict:
         user_info = self._user_info(user_id)
         offset = self.db_utils.get_offset(user_id)
         account = self._fetch_account(user_info=user_info, offset=offset)
         return account
 
-    def add_to_favourites(self, account: dict) -> bool:
-        return None
+
+    def add_to_favourites(self, user_id: str) -> str:
+        requests_id = self.db_utils.get_last_requests_id(user_id=user_id)
+        self.db_utils.add_favorite(user_id=user_id, requests_id=requests_id)
+        name = self.db_utils.get_requests_name(requests_id=requests_id)
+        return f'{name[0]} {name[1]}'
+    
 
     def get_favourites(self, user_id: str) -> list:
         favourites = self.db_utils.get_favourites(user_id=user_id)
         return favourites
     
+
     def check_user(self, user_id: str):
         user_exists = self.db_utils.check_user(user_id=user_id)
         if not user_exists:
             user_info = self._user_info(user_id=user_id)
             self.db_utils.add_user(user_info=user_info)
     
+
     def _fetch_account(self, user_info: dict, offset: int) -> dict:
         url = r'https://api.vk.com/method/users.search'
         age_from = user_info['age'] - 5 if user_info['age'] else None
@@ -52,9 +60,11 @@ class Data_Service:
         items = response.json()['response']['items'][0]
         keys = {"id", "first_name", "last_name", "sex", "city_id", "age"}
         account = {key: items[key] for key in keys if key in items}
+        account['link'] = f'https://vk.com/id{account.get("id")}'
         self.db_utils.add_requests(user_id=user_info['user_id'], account=account)
         return account
     
+
     def _fetch_photos(self, account: dict, user_id):
         photos = self._fetch_photos(account=account)
         for photo in photos:
@@ -78,9 +88,11 @@ class Data_Service:
 
         return {"user_id": self.id, "city_id": self.city_id, "sex": self.sex, "age": self.age}
 
+
     def create_database(self):
         """Создать базу данных"""
         self.db_utils.create_database()
+
 
     def remove_database(self):
         """Удалить базу данных"""
