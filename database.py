@@ -28,6 +28,23 @@ class DB_Utils:
     def check_user(self, user_id: str) -> bool:
         pass
 
+    def add_user(self, user_info: dict) -> None:
+        '''
+        Функция добавляет пользователя в базу данных.
+        :param id_user: id пользовател
+        :param sex: пол пользователя. 1 - женский, 2 - мужской
+        :param age: возраст пользователя
+        :param city_id: город пользователя
+        '''
+        
+        with self.session as session:
+            user_find = session.query(m.User_VKinder.id_user).all()
+            if id_user not in [user[0] for user in user_find]:
+                user = m.User_VKinder(id_user=id_user, name=name, surname=surname, age=age,
+                                      sex=sex,  city=city)
+                session.add(user)
+                session.commit()
+
     def get_favourites(self, user_id: str) -> list:
         pass
 

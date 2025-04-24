@@ -12,7 +12,8 @@ class Config:
         config = configparser.ConfigParser()
         config.read(settingspath)
 
-        self.token = config.get('VK_API', 'token')
+        self.group_token = config.get('VK_API', 'group_token')
+        self.user_token = config.get('VK_API', 'user_token')
 
         driver = config.get('DATABASE', 'driver')
         user = config.get('DATABASE', 'user')

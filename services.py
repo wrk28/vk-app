@@ -5,9 +5,10 @@ from datetime import datetime
 
 class Data_Service:
     """Обеспечение совместной работы приложения с VK API и базой данных"""
-    def __init__(self, token: str, db_utils: DB_Utils):
-        self.token = token
-        self.version = '5.131'
+    def __init__(self, group_token: str, user_token:str, db_utils: DB_Utils):
+        self.group_token = group_token
+        self.user_token = user_token
+        self.version = '5.199'
         self.db_utils = db_utils
 
     def close(self):
@@ -16,7 +17,7 @@ class Data_Service:
 
     def next_account(self, user_id: str) -> dict:
         user_info = self._user_info(user_id)
-        offset = self.db_utils.get_offset(user_info['user_id'])
+        offset = 1 #self.db_utils.get_offset(user_info['user_id'])
         account = self._fetch_account(user_info=user_info, offset=offset)
         return account
 
@@ -33,21 +34,35 @@ class Data_Service:
             user_info = self._user_info(user_id=user_id)
             self.db_utils.add_user(user_info=user_info)
     
-    def _fetch_account(self, user_info: dict, offsett: int) -> dict:
-        pass
-        account = {}
-        photos = self._fetch_photos(account=account)
-        for photo in photos:
-            self.db_utils.add_photo(photo)
+    def _fetch_account(self, user_info: dict, offset: int) -> dict:
+        url = r'https://api.vk.com/method/users.search'
+        age_from = user_info['age'] - 5 if user_info['age'] else None
+        age_to = user_info['age'] + 5 if user_info['age'] else None
+        params = {
+            "city_id": user_info['city_id'],
+            "age_from": age_from,
+            "age_to": age_to,
+            "sex": user_info['sex'],
+            "count": 1,
+            "offset": offset,
+            "v": self.version,
+            "access_token": self.user_token
+        }
+        response = requests.get(url=url, params=params)
+
+        account = response.json()
         self.db_utils.add_requests(user_id=user_info['user_id'], account=account)
         return account
     
-    def _fetch_photos(self, account: dict):
-        pass
+    def _fetch_photos(self, account: dict, user_id):
+        photos = self._fetch_photos(account=account)
+        for photo in photos:
+            self.db_utils.add_photo(photo)
+        
     
     def _user_info(self, user_id):
-        url = 'https://api.vk.com/method/users.get'
-        params = {"access_token": self.token, "v": self.version, "user_ids": user_id, "fields": "bdate,city,sex"}
+        url = r'https://api.vk.com/method/users.get'
+        params = {"access_token": self.group_token, "v": self.version, "user_ids": user_id, "fields": "bdate,city,sex"}
         response = requests.get(url=url, params=params).json()['response'][0]
 
         self.id = response.get('id')

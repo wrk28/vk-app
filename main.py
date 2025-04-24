@@ -52,7 +52,9 @@ class BotMessages:
 
 if __name__ == '__main__':
     
-    data_service = Data_Service(token=settings.token, db_utils=db_utils)
+    data_service = Data_Service(group_token=settings.group_token, 
+                                user_token=settings.user_token, 
+                                db_utils=db_utils)
 
     try:
         if settings.auto_remove:
@@ -61,7 +63,7 @@ if __name__ == '__main__':
         if settings.auto_create:
             data_service.create_database()
 
-        vk_session = VkApi(token=settings.token)
+        vk_session = VkApi(token=settings.group_token)
         poll = VkLongPoll(vk_session)
         bot_api = vk_session.get_api()
 

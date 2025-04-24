@@ -4,14 +4,12 @@ from sqlalchemy.orm import declarative_base, relationship
 Base = declarative_base()
 
 class User_VKinder(Base):
-    __tablename__ = 'User_VKinder'
-
-    id_user = sq.Column(sq.Integer, primary_key=True)
-    name = sq.Column(sq.String(length=80), unique=False, nullable=False)
-    surname = sq.Column(sq.String(length=80), unique=False, nullable=False)
-    age = sq.Column(sq.Integer, unique=False, nullable=False)
-    sex = sq.Column(sq.String(length=20), unique=False, nullable=False)
-    city = sq.Column(sq.String(length=80), unique=False, nullable=False)
+    __tablename__ = 'User'
+    id_user = sq.Column(sq.String, primary_key=True)
+    age = sq.Column(sq.Integer, nullable=True)
+    sex = sq.Column(sq.Integer, nullable=True)
+    city_id = sq.Column(sq.Integer, nullable=True)
+    offset = sq.Column(sq.Integer, nullable=False, defeult=0)
 
 
 class Requests(Base):
