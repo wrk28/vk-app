@@ -1,7 +1,6 @@
 import sqlalchemy as sq
 from sqlalchemy.orm import sessionmaker
-from models import Base
-from config import settings
+from models import User
 import models as m
 
 class DB_Utils:
@@ -9,7 +8,7 @@ class DB_Utils:
     def __init__(self, base, dsn) -> None:
         self.base = base
         self.engine = sq.create_engine(dsn)
-        self.Session = sessionmaker()
+        self.Session = sessionmaker(bind=self.engine)
         self.session = None
 
     def _start_session(self) -> None:
@@ -26,24 +25,25 @@ class DB_Utils:
         return None
     
     def check_user(self, user_id: str) -> bool:
-        pass
+        self._start_session()
+        result = self.session.query(User).filter(User.user_id == user_id).one_or_none()
+        self._close_session()
+        return True if result else False
 
     def add_user(self, user_info: dict) -> None:
         '''
         Функция добавляет пользователя в базу данных.
-        :param id_user: id пользовател
-        :param sex: пол пользователя. 1 - женский, 2 - мужской
-        :param age: возраст пользователя
-        :param city_id: город пользователя
         '''
-        
-        # with self.session as session:
-        #     user_find = session.query(m.User_VKinder.id_user).all()
-        #     if id_user not in [user[0] for user in user_find]:
-        #         user = m.User_VKinder(id_user=id_user, name=name, surname=surname, age=age,
-        #                               sex=sex,  city=city)
-        #         session.add(user)
-        #         session.commit()
+        user_id = user_info['user_id']
+        city_id = user_info['city_id']
+        sex = user_info['sex']
+        age = user_info['age']
+        self._start_session()
+        new_user = User(user_id=user_id, city_id=city_id, sex=sex, age=age)
+        self.session.add(new_user)
+        self.session.commit()
+        self._close_session()
+
 
     def get_favourites(self, user_id: str) -> list:
         pass
@@ -57,26 +57,6 @@ class DB_Utils:
     def close(self) -> None:
         self._close_session()
 
-    def add_user(self, user_info: dict) -> None:
-        '''
-        Функция добавляет пользователя в базу данных.
-        В данном случае user_vkinder - это пользователь, который ищет пару.
-        Для простоты будем называть его "пользователь"
-        :param id_user: id пользовател
-        :param name: имя пользователя.
-        :param surname: имя пользователя.
-        :param sex: пол пользователя. 1 - женский, 2 - мужской
-        :param age: возраст пользователя
-        :param city: город пользователя
-        '''
-
-        # with self.session as session:
-        #     user_find = session.query(m.User_VKinder.id_user).all()
-        #     if id_user not in [user[0] for user in user_find]:
-        #         user = m.User_VKinder(id_user=id_user, name=name, surname=surname, age=age,
-        #                               sex=sex,  city=city)
-        #         session.add(user)
-        #         session.commit()
 
     def add_requests(self, user_id, account):
         '''
@@ -132,6 +112,3 @@ class DB_Utils:
                 photo = m.Photos(requests_id=requests_id, photo_url=url)
                 session.add(photo)
             session.commit()
-
-
-db_utils = DB_Utils(base=Base, dsn=settings.dsn)

@@ -5,46 +5,45 @@ from sqlalchemy.orm import declarative_base, relationship
 Base = declarative_base()
 
 
-class User_VKinder(Base):
+class User(Base):
     __tablename__ = 'User'
 
-    id_user = sq.Column(sq.String, primary_key=True)
-    age = sq.Column(sq.Integer, nullable=True)
-    sex = sq.Column(sq.Integer, nullable=True)
-    city_id = sq.Column(sq.Integer, nullable=True)
-    offset = sq.Column(sq.Integer, nullable=False, defeult=0)
+    user_id = sq.Column(sq.BigInteger, primary_key=True)
+    age = sq.Column(sq.Integer)
+    sex = sq.Column(sq.Integer)
+    city_id = sq.Column(sq.Integer)
+    offset = sq.Column(sq.Integer, nullable=False, default=0)
 
 
 class Requests(Base):
     __tablename__ = 'Requests'
 
-    requests_id = sq.Column(sq.Integer, primary_key=True)
-    name = sq.Column(sq.String(length=80), unique=False)
-    surname = sq.Column(sq.String(length=80), unique=False)
-    age = sq.Column(sq.Integer, unique=False)
-    sex = sq.Column(sq.String(length=20), unique=False)
-    city = sq.Column(sq.String(length=80), unique=False)
-    link = sq.Column(sq.String(length=80), unique=False)
+    requests_id = sq.Column(sq.BigInteger, primary_key=True)
+    name = sq.Column(sq.String(length=80))
+    surname = sq.Column(sq.String(length=80))
+    age = sq.Column(sq.Integer)
+    sex = sq.Column(sq.Integer)
+    city_id = sq.Column(sq.Integer)
+    link = sq.Column(sq.String(length=160))
 
 
 class User_requests(Base):
     __tablename__= 'User_requests'
 
-    requests_user_id = sq.Column(sq.Integer, primary_key=True)
-    id_user = sq.Column(sq.Integer, sq.ForeignKey('User_VKinder'))
-    requests_id = sq.Column(sq.Integer, sq.ForeignKey('Requests'))
-    favorite_list = sq.Column(sq.Integer, unique=False, default=0)
-    black_list = sq.Column(sq.Integer, unique=False, default=0)
+    requests_user_id = sq.Column(sq.BigInteger, primary_key=True)
+    user_id = sq.Column(sq.BigInteger, sq.ForeignKey('User.user_id'))
+    requests_id = sq.Column(sq.BigInteger, sq.ForeignKey('Requests.requests_id'))
+    favorite_list = sq.Column(sq.Integer, default=0)
 
-    user = relationship(User_VKinder, backref='User_requests')
-    req = relationship(Requests, backref= 'User_requests')
+    User = relationship(User, backref='User_requests')
+    Requests = relationship(Requests, backref= 'User_requests')
 
 
 class Photos(Base):
     __tablename__ = 'Photos'
 
     photos_id= sq.Column(sq.Integer, primary_key=True)
-    requests_id = sq.Column(sq.Integer, sq.ForeignKey('Requests'), nullable=False)
-    photo_url = sq.Column(sq.String(length=80), unique=False, nullable=False)
+    requests_id = sq.Column(sq.Integer, sq.ForeignKey('Requests.requests_id'), nullable=False)
+    photo_url = sq.Column(sq.String(length=80), nullable=False)
 
-    req = relationship(User_requests, backref='Photos')
+    Requests = relationship(Requests, backref='Photos')
