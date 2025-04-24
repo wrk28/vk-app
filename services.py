@@ -49,7 +49,6 @@ class Data_Service:
             "access_token": self.user_token
         }
         response = requests.get(url=url, params=params)
-
         account = response.json()
         self.db_utils.add_requests(user_id=user_info['user_id'], account=account)
         return account
