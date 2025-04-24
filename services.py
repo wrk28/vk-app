@@ -13,11 +13,11 @@ class Data_Service:
 
     def close(self):
         """Завершение работы с базой данных"""
-        self.db_utils.close()
+        pass
 
     def next_account(self, user_id: str) -> dict:
         user_info = self._user_info(user_id)
-        offset = 1 #self.db_utils.get_offset(user_info['user_id'])
+        offset = self.db_utils.get_offset(user_id)
         account = self._fetch_account(user_info=user_info, offset=offset)
         return account
 
@@ -49,7 +49,9 @@ class Data_Service:
             "access_token": self.user_token
         }
         response = requests.get(url=url, params=params)
-        account = response.json()
+        items = response.json()['response']['items'][0]
+        keys = {"id", "first_name", "last_name", "sex", "city_id", "age"}
+        account = {key: items[key] for key in keys if key in items}
         self.db_utils.add_requests(user_id=user_info['user_id'], account=account)
         return account
     
