@@ -37,13 +37,13 @@ class DB_Utils:
         :param city_id: город пользователя
         '''
         
-        with self.session as session:
-            user_find = session.query(m.User_VKinder.id_user).all()
-            if id_user not in [user[0] for user in user_find]:
-                user = m.User_VKinder(id_user=id_user, name=name, surname=surname, age=age,
-                                      sex=sex,  city=city)
-                session.add(user)
-                session.commit()
+        # with self.session as session:
+        #     user_find = session.query(m.User_VKinder.id_user).all()
+        #     if id_user not in [user[0] for user in user_find]:
+        #         user = m.User_VKinder(id_user=id_user, name=name, surname=surname, age=age,
+        #                               sex=sex,  city=city)
+        #         session.add(user)
+        #         session.commit()
 
     def get_favourites(self, user_id: str) -> list:
         pass
