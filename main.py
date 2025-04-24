@@ -84,12 +84,11 @@ if __name__ == '__main__':
 
                     elif request == BotCommands.NEXT:
                         account = data_service.next_account(user_id=bot.user_id)
-                        bot.message('Данные')
+                        bot.message(f'- {account.get("first_name")} {account.get("last_name")}\n- {account.get("link")}')
 
                     elif request == BotCommands.ADD_FAVOURITES:
-                        bot.message('Выбрано "В избранное"')
-                        current_account = {}
-                        data_service.add_to_favourites(account=current_account)
+                        name = data_service.add_to_favourites(user_id=event.user_id)
+                        bot.message(Content.ADDED_TO_FAVOURITES.format(name=name))
 
                     elif request == BotCommands.SHOW_FAVOURITES:
                         bot.message('Выбрано "Показать избранное"')

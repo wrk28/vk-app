@@ -32,6 +32,7 @@ class User_requests(Base):
     
     user_id = sq.Column(sq.BigInteger, sq.ForeignKey(User.user_id), primary_key=True)
     requests_id = sq.Column(sq.BigInteger, sq.ForeignKey(Requests.requests_id), primary_key=True)
+    number = sq.Column(sq.BigInteger, default=0)
     favorite_list = sq.Column(sq.Integer, default=0)
 
     User = relationship(User, backref='User_requests')
