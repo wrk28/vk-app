@@ -19,8 +19,8 @@ class Requests(Base):
     __tablename__ = 'Requests'
 
     requests_id = sq.Column(sq.BigInteger, primary_key=True)
-    name = sq.Column(sq.String(length=80))
-    surname = sq.Column(sq.String(length=80))
+    first_name = sq.Column(sq.String(length=80))
+    last_name = sq.Column(sq.String(length=80))
     age = sq.Column(sq.Integer)
     sex = sq.Column(sq.Integer)
     city_id = sq.Column(sq.Integer)
@@ -29,10 +29,9 @@ class Requests(Base):
 
 class User_requests(Base):
     __tablename__= 'User_requests'
-
-    requests_user_id = sq.Column(sq.BigInteger, primary_key=True)
-    user_id = sq.Column(sq.BigInteger, sq.ForeignKey('User.user_id'))
-    requests_id = sq.Column(sq.BigInteger, sq.ForeignKey('Requests.requests_id'))
+    
+    user_id = sq.Column(sq.BigInteger, sq.ForeignKey(User.user_id), primary_key=True)
+    requests_id = sq.Column(sq.BigInteger, sq.ForeignKey(Requests.requests_id), primary_key=True)
     favorite_list = sq.Column(sq.Integer, default=0)
 
     User = relationship(User, backref='User_requests')
@@ -43,7 +42,7 @@ class Photos(Base):
     __tablename__ = 'Photos'
 
     photos_id= sq.Column(sq.Integer, primary_key=True)
-    requests_id = sq.Column(sq.Integer, sq.ForeignKey('Requests.requests_id'), nullable=False)
+    requests_id = sq.Column(sq.Integer, sq.ForeignKey(Requests.requests_id), nullable=False)
     photo_url = sq.Column(sq.String(length=80), nullable=False)
 
     Requests = relationship(Requests, backref='Photos')
