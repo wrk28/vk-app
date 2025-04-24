@@ -1,6 +1,7 @@
 from config import settings
 from content import Content
-from database import db_utils
+from database import DB_Utils
+from models import Base
 from services import Data_Service
 from vk_api import VkApi
 from vk_api.vk_api import VkApiMethod
@@ -51,6 +52,9 @@ class BotMessages:
     
 
 if __name__ == '__main__':
+
+    db_utils = DB_Utils(base=Base, 
+                        dsn=settings.dsn)
     
     data_service = Data_Service(group_token=settings.group_token, 
                                 user_token=settings.user_token, 
