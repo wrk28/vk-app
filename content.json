@@ -5,5 +5,9 @@
     "bot_command_show_favourites": "Показать избранное",
     "added_to_favourites": "Страница {name} добавлена в избранное",
     "favourites": "Избранное:",
+    "no_photos": "Нет фото для этого аккаунта",
+    "start": "Начать",
+    "choose_next_to_start": "Выберите \"Следующий\" для начала поиска",
+    "error_api_request": "Ошибка запроса API",
     "program_stopped": "Программа была остановленна из-за ошибки: {error}"
 }

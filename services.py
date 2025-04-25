@@ -1,10 +1,11 @@
 from database import DB_Utils
 import requests
 from datetime import datetime
+from content import Content
 
 
 class Data_Service:
-    """Обеспечение совместной работы приложения с VK API и базой данных"""
+
     def __init__(self, group_token: str, user_token:str, db_utils: DB_Utils):
         self.group_token = group_token
         self.user_token = user_token
@@ -12,7 +13,6 @@ class Data_Service:
         self.db_utils = db_utils
 
     def close(self):
-        """Завершение работы с базой данных"""
         self.db_utils.close()
 
 
@@ -62,6 +62,8 @@ class Data_Service:
             "access_token": self.user_token
         }
         response = requests.get(url=url, params=params)
+        if 'error' in response.json():
+            raise Exception(Content.ERROR_API_REQUEST)
         items = response.json()['response']['items'][0]
         keys = {"id", "first_name", "last_name", "sex", "city_id", "age"}
         account = {key: items[key] for key in keys if key in items}
@@ -74,6 +76,8 @@ class Data_Service:
         url = r'https://api.vk.com/method/photos.get'
         params = {"access_token": self.user_token, "v": self.version, "owner_id": owner_id, "album_id": "profile", "extended": 1}
         response = requests.get(url=url, params=params).json()
+        if 'error' in response:
+            raise Exception(Content.ERROR_API_REQUEST)
         photos_info = []
         if 'error' not in response:
             items = response['response']['items']
@@ -96,8 +100,10 @@ class Data_Service:
     def _user_info(self, user_id):
         url = r'https://api.vk.com/method/users.get'
         params = {"access_token": self.group_token, "v": self.version, "user_ids": user_id, "fields": "bdate,city,sex"}
-        response = requests.get(url=url, params=params).json()['response'][0]
-
+        response = requests.get(url=url, params=params)
+        if 'error' in response.json():
+            raise Exception(Content.ERROR_API_REQUEST)
+        response = response.json()['response'][0]
         self.id = response.get('id')
         self.city_id = response.get('city').get('id')
         self.sex = response.get('sex')
@@ -107,17 +113,14 @@ class Data_Service:
             self.age = current_time.year - bday.year - ((current_time.month, current_time.day) < (bday.month, bday.day))
         else:
             self.age = None
-
         return {"user_id": self.id, "city_id": self.city_id, "sex": self.sex, "age": self.age}
 
 
     def create_database(self):
-        """Создать базу данных"""
         self.db_utils.create_database()
 
 
     def remove_database(self):
-        """Удалить базу данных"""
         self.db_utils.remove_database()
 
 

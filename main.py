@@ -23,7 +23,7 @@ class BotMessages:
         self.user_id = user_id
 
         self.start_keyboard = VkKeyboard()
-        self.start_keyboard.add_button('Начать', VkKeyboardColor.PRIMARY)
+        self.start_keyboard.add_button(Content.START, VkKeyboardColor.PRIMARY)
 
         self.keyboard = VkKeyboard()
         self.keyboard.add_button(BotCommands.NEXT, VkKeyboardColor.PRIMARY)
@@ -46,7 +46,18 @@ class BotMessages:
                           random_id=self._random_id(), 
                           keyboard=self.keyboard.get_keyboard())
 
-    def message_photos(self, photos: list) -> None:
+    def message_photos(self, message: str, photos: list) -> None:
+        attachments = self._get_attachment_str(photos)
+        if attachments:
+            self.bot_api.messages.send(user_id=self.user_id,
+                            message=message, 
+                            random_id=self._random_id(), 
+                            keyboard=self.keyboard.get_keyboard(),
+                            attachment=attachments)
+        else:
+            self.message(message=f'{message}\n{Content.NO_PHOTOS}')
+
+    def _get_attachment_str(self, photos):
         attachment_list = []
         for item in photos:
             attachment = f'photo{item["owner_id"]}_{item["media_id"]}'
@@ -54,13 +65,7 @@ class BotMessages:
                 attachment = f'{attachment}_{item["access_key"]}'
             attachment_list.append(attachment)
         attachments = ','.join(attachment_list)
-        if attachments:
-            self.bot_api.messages.send(user_id=self.user_id, 
-                            random_id=self._random_id(), 
-                            keyboard=self.keyboard.get_keyboard(),
-                            attachment=attachments)
-        else:
-            self.message(message='Нет фото для этого аккаунта')
+        return attachments
     
 
 if __name__ == '__main__':
@@ -86,7 +91,6 @@ if __name__ == '__main__':
         for event in poll.listen():
             if event.type == VkEventType.MESSAGE_NEW:
                 if event.to_me:
-                    
                     request = event.text
                     new_user = data_service.check_user(user_id=event.user_id)
                     bot = BotMessages(bot_api=bot_api, user_id=event.user_id)
@@ -96,8 +100,8 @@ if __name__ == '__main__':
 
                     elif request == BotCommands.NEXT:
                         account, photos = data_service.next_account(user_id=bot.user_id)
-                        bot.message(message=f'- {account.get("first_name")} {account.get("last_name")}\n- {account.get("link")}')
-                        bot.message_photos(photos=photos)
+                        bot.message_photos(message=f'- {account.get("first_name")} {account.get("last_name")}\n- {account.get("link")}',
+                                           photos=photos)
 
                     elif request == BotCommands.ADD_FAVOURITES:
                         name = data_service.add_to_favourites(user_id=event.user_id)
@@ -109,11 +113,11 @@ if __name__ == '__main__':
                         for item in favourites:
                             account = item['account']
                             photos = item['photos']
-                            bot.message(f'-{account.get("first_name")} {account.get("last_name")}\n- {account.get("link")}')
-                            bot.message_photos(photos=photos)
+                            bot.message_photos(message=f'-{account.get("first_name")} {account.get("last_name")}\n- {account.get("link")}',
+                                               photos=photos)
 
                     else:
-                        bot.message('Выберите "Следующий" для начала поиска')
+                        bot.message(Content.CHOOSE_NEXT_TO_START)
 
     except Exception as e:
         print(Content.PROGRAM_STOPPED.format(error=e))

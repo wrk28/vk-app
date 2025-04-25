@@ -14,6 +14,10 @@ class Content:
         cls.BOT_ADD_FAVOURITES = content['bot_command_add_favourites']
         cls.ADDED_TO_FAVOURITES = content['added_to_favourites']
         cls.FAVOURITES = content['favourites']
+        cls.NO_PHOTOS = content['no_photos']
+        cls.START = content['start']
+        cls.CHOOSE_NEXT_TO_START = content['choose_next_to_start']
+        cls.ERROR_API_REQUEST = content['error_api_request']
         cls.BOT_SHOW_FAVOURITES = content['bot_command_show_favourites']
 
 
