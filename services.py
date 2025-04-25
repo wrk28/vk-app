@@ -20,7 +20,8 @@ class Data_Service:
         user_info = self._user_info(user_id)
         offset = self.db_utils.get_offset(user_id)
         account = self._fetch_account(user_info=user_info, offset=offset)
-        return account
+        photos = self._fetch_photos(owner_id = account.get('id'))
+        return account, photos
 
 
     def add_to_favourites(self, user_id: str) -> str:
@@ -65,10 +66,25 @@ class Data_Service:
         return account
     
 
-    def _fetch_photos(self, account: dict, user_id):
-        photos = self._fetch_photos(account=account)
+    def _fetch_photos(self, owner_id: str):
+        url = r'https://api.vk.com/method/photos.get'
+        params = {"access_token": self.user_token, "v": self.version, "owner_id": owner_id, "album_id": "profile", "extended": 1}
+        items = requests.get(url=url, params=params).json()['response']['items']
+        sorted_photos = sorted(items, key=lambda item: (item.get('likes', {}).get('count', 0) if 'likes' in item else 0), reverse=True)
+        top_photos = sorted_photos[:3]
+        photo_urls = self._get_photo_links(top_photos)
+        for photo in photo_urls:
+            self.db_utils.add_photo(requests_id=owner_id, photo_url=photo)
+        return photo_urls
+
+
+    def _get_photo_links(self, photos: list) -> list:
+        photo_urls = []
         for photo in photos:
-            self.db_utils.add_photo(photo)
+            sizes = photo['sizes']
+            max_size = max(sizes, key=lambda x: x['height'] * x['width'])['url']
+            photo_urls.append(max_size) 
+        return photo_urls
         
     
     def _user_info(self, user_id):

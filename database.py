@@ -135,8 +135,7 @@ class DB_Utils:
         :param requests_id: id запроса
         :param photo_url: ссылки на фотографии
         '''
-        with self.session as session:
-            for url in photo_url:
-                photo = m.Photos(requests_id=requests_id, photo_url=url)
-                session.add(photo)
+        with self.Session() as session:
+            photo = m.Photos(requests_id=requests_id, photo_url=photo_url)
+            session.add(photo)
             session.commit()

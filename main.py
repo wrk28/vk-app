@@ -48,7 +48,11 @@ class BotMessages:
 
     def message_photos(self, photos: list) -> None:
         for item in photos:
-            item
+            self.bot_api.messages.send(user_id=self.user_id, 
+                          message='Фото', 
+                          random_id=self._random_id(), 
+                          keyboard=self.keyboard.get_keyboard(),
+                          attachment=item)
     
 
 if __name__ == '__main__':
@@ -83,8 +87,10 @@ if __name__ == '__main__':
                         bot.start_message(Content.BOT_START_MESSAGE)
 
                     elif request == BotCommands.NEXT:
-                        account = data_service.next_account(user_id=bot.user_id)
-                        bot.message(f'- {account.get("first_name")} {account.get("last_name")}\n- {account.get("link")}')
+                        account, photos = data_service.next_account(user_id=bot.user_id)
+                        attachment = ','.join(photos)
+                        bot.message(message=f'- {account.get("first_name")} {account.get("last_name")}\n- {account.get("link")}')
+                        bot.message_photos(photos=photos)
 
                     elif request == BotCommands.ADD_FAVOURITES:
                         name = data_service.add_to_favourites(user_id=event.user_id)

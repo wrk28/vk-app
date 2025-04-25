@@ -44,6 +44,6 @@ class Photos(Base):
 
     photos_id= sq.Column(sq.Integer, primary_key=True)
     requests_id = sq.Column(sq.Integer, sq.ForeignKey('Requests.requests_id'), nullable=False)
-    photo_url = sq.Column(sq.String(length=80), nullable=False)
+    photo_url = sq.Column(sq.String(length=1000), nullable=False)
 
     Requests = relationship(Requests, backref='Photos')
