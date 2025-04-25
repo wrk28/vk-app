@@ -11,6 +11,9 @@ class DB_Utils:
         self.engine = sq.create_engine(dsn)
         self.Session = sessionmaker(bind=self.engine)
 
+    def close(self):
+        self.Session.close_all()
+
 
     def get_offset(self, user_id: str) -> int:
         with self.Session() as session:
@@ -54,9 +57,18 @@ class DB_Utils:
             session.add(new_user)
             session.commit()
 
-
     def get_favourites(self, user_id: str) -> list:
-        pass
+        with self.Session() as session:
+            result = session.query(Requests.requests_id, 
+                                   Requests.first_name, 
+                                   Requests.last_name, 
+                                   Requests.link). \
+                join(User_requests, User_requests.requests_id==Requests.requests_id).\
+                    filter(User_requests.user_id==user_id, User_requests.favorite_list==1).all()
+        favourites = []
+        for item in result:
+            favourites.append(dict(zip(["id","first_name", "last_name", "link"], item)))
+        return favourites
 
     def create_database(self) -> None:
         self.base.metadata.create_all(self.engine)

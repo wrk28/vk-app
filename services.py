@@ -13,7 +13,7 @@ class Data_Service:
 
     def close(self):
         """Завершение работы с базой данных"""
-        pass
+        self.db_utils.close()
 
 
     def next_account(self, user_id: str) -> dict:

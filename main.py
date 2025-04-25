@@ -91,12 +91,10 @@ if __name__ == '__main__':
                         bot.message(Content.ADDED_TO_FAVOURITES.format(name=name))
 
                     elif request == BotCommands.SHOW_FAVOURITES:
-                        bot.message('Выбрано "Показать избранное"')
-                        # favourites = {"data": None, "photos": []}
-                        favourites = data_service.get_favourites(user=bot.bot_api)
+                        bot.message('Избранное:"')
+                        favourites = data_service.get_favourites(user_id=bot.user_id)
                         for item in favourites:
-                            bot.message(item.data)
-                            bot.message_photos(item.photos)
+                            bot.message(f'-{item.get("first_name")} {item.get("last_name")}\n- {item.get("link")}')
 
                     else:
                         bot.message('Выберите "Следующий" для начала поиска')
