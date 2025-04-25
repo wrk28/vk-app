@@ -4,5 +4,6 @@
     "bot_command_add_favourites": "В избранное",
     "bot_command_show_favourites": "Показать избранное",
     "added_to_favourites": "Страница {name} добавлена в избранное",
+    "favourites": "Избранное:",
     "program_stopped": "Программа была остановленна из-за ошибки: {error}"
 }

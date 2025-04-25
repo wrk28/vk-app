@@ -42,8 +42,11 @@ class User_requests(Base):
 class Photos(Base):
     __tablename__ = 'Photos'
 
-    photos_id= sq.Column(sq.Integer, primary_key=True)
-    requests_id = sq.Column(sq.Integer, sq.ForeignKey('Requests.requests_id'), nullable=False)
+    photos_id= sq.Column(sq.BigInteger, primary_key=True)
+    requests_id = sq.Column(sq.BigInteger, sq.ForeignKey('Requests.requests_id'), nullable=False)
+    owner_id = sq.Column(sq.BigInteger)
+    media_id = sq.Column(sq.BigInteger)
+    access_key = sq.Column(sq.String(length=80))
     photo_url = sq.Column(sq.String(length=1000), nullable=False)
 
     Requests = relationship(Requests, backref='Photos')

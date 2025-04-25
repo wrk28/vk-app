@@ -3,11 +3,11 @@ from content import Content
 from database import DB_Utils
 from models import Base
 from services import Data_Service
+from random import randint
 from vk_api import VkApi
 from vk_api.vk_api import VkApiMethod
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
-from random import randint
 
 
 class BotCommands:
@@ -47,12 +47,20 @@ class BotMessages:
                           keyboard=self.keyboard.get_keyboard())
 
     def message_photos(self, photos: list) -> None:
+        attachment_list = []
         for item in photos:
+            attachment = f'photo{item["owner_id"]}_{item["media_id"]}'
+            if item['access_key']:
+                attachment = f'{attachment}_{item["access_key"]}'
+            attachment_list.append(attachment)
+        attachments = ','.join(attachment_list)
+        if attachments:
             self.bot_api.messages.send(user_id=self.user_id, 
-                          message='Фото', 
-                          random_id=self._random_id(), 
-                          keyboard=self.keyboard.get_keyboard(),
-                          attachment=item)
+                            random_id=self._random_id(), 
+                            keyboard=self.keyboard.get_keyboard(),
+                            attachment=attachments)
+        else:
+            self.message(message='Нет фото для этого аккаунта')
     
 
 if __name__ == '__main__':
@@ -88,7 +96,6 @@ if __name__ == '__main__':
 
                     elif request == BotCommands.NEXT:
                         account, photos = data_service.next_account(user_id=bot.user_id)
-                        attachment = ','.join(photos)
                         bot.message(message=f'- {account.get("first_name")} {account.get("last_name")}\n- {account.get("link")}')
                         bot.message_photos(photos=photos)
 
@@ -97,10 +104,13 @@ if __name__ == '__main__':
                         bot.message(Content.ADDED_TO_FAVOURITES.format(name=name))
 
                     elif request == BotCommands.SHOW_FAVOURITES:
-                        bot.message('Избранное:"')
+                        bot.message(Content.FAVOURITES)
                         favourites = data_service.get_favourites(user_id=bot.user_id)
                         for item in favourites:
-                            bot.message(f'-{item.get("first_name")} {item.get("last_name")}\n- {item.get("link")}')
+                            account = item['account']
+                            photos = item['photos']
+                            bot.message(f'-{account.get("first_name")} {account.get("last_name")}\n- {account.get("link")}')
+                            bot.message_photos(photos=photos)
 
                     else:
                         bot.message('Выберите "Следующий" для начала поиска')

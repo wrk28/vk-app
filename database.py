@@ -67,7 +67,7 @@ class DB_Utils:
                     filter(User_requests.user_id==user_id, User_requests.favorite_list==1).all()
         favourites = []
         for item in result:
-            favourites.append(dict(zip(["id","first_name", "last_name", "link"], item)))
+            favourites.append(dict(zip(["id", "first_name", "last_name", "link"], item)))
         return favourites
 
     def create_database(self) -> None:
@@ -129,13 +129,28 @@ class DB_Utils:
                                 values(favorite_list = 1))
             session.commit()
 
-    def add_photo(self, requests_id, photo_url):
+    def add_photos(self, requests_id: str, photos: list):
         '''
         Функция сохраняет в БД ссылки на фотографии предложения
         :param requests_id: id запроса
         :param photo_url: ссылки на фотографии
         '''
         with self.Session() as session:
-            photo = m.Photos(requests_id=requests_id, photo_url=photo_url)
-            session.add(photo)
-            session.commit()
+            for photo in photos:
+                photo = m.Photos(requests_id=requests_id, 
+                                 owner_id=photo.get('owner_id'),
+                                 media_id=photo.get('media_id'),
+                                 access_key=photo.get('access_key'),
+                                 photo_url=photo.get('url'))
+                session.add(photo)
+                session.commit()
+    
+
+    def get_requests_photos(self, request_id: str) -> list:
+        with self.Session() as session:
+            result = session.query(Photos.owner_id, Photos.media_id, Photos.access_key). \
+                    filter(Photos.requests_id==request_id).all()
+        photos = []
+        for item in result:
+            photos.append(dict(zip(["owner_id","media_id", "access_key"], item)))
+        return photos

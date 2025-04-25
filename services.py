@@ -31,8 +31,12 @@ class Data_Service:
         return f'{name[0]} {name[1]}'
     
 
-    def get_favourites(self, user_id: str) -> list:
-        favourites = self.db_utils.get_favourites(user_id=user_id)
+    def get_favourites(self, user_id: str) -> tuple:
+        requests = self.db_utils.get_favourites(user_id=user_id)
+        favourites = []
+        for item in requests:
+            photos = self.db_utils.get_requests_photos(request_id=item['id'])
+            favourites.append({"account": item, "photos": photos})
         return favourites
     
 
@@ -69,22 +73,24 @@ class Data_Service:
     def _fetch_photos(self, owner_id: str):
         url = r'https://api.vk.com/method/photos.get'
         params = {"access_token": self.user_token, "v": self.version, "owner_id": owner_id, "album_id": "profile", "extended": 1}
-        items = requests.get(url=url, params=params).json()['response']['items']
-        sorted_photos = sorted(items, key=lambda item: (item.get('likes', {}).get('count', 0) if 'likes' in item else 0), reverse=True)
-        top_photos = sorted_photos[:3]
-        photo_urls = self._get_photo_links(top_photos)
-        for photo in photo_urls:
-            self.db_utils.add_photo(requests_id=owner_id, photo_url=photo)
-        return photo_urls
+        response = requests.get(url=url, params=params).json()
+        photos_info = []
+        if 'error' not in response:
+            items = response['response']['items']
+            sorted_photos = sorted(items, key=lambda item: (item.get('likes', {}).get('count', 0) if 'likes' in item else 0), reverse=True)
+            top_photos = sorted_photos[:3]
+            photos_info = self._get_photos_info(top_photos)
+            self.db_utils.add_photos(requests_id=owner_id, photos=photos_info)
+        return photos_info
 
 
-    def _get_photo_links(self, photos: list) -> list:
-        photo_urls = []
+    def _get_photos_info(self, photos: list) -> list:
+        photos_info = []
         for photo in photos:
             sizes = photo['sizes']
             max_size = max(sizes, key=lambda x: x['height'] * x['width'])['url']
-            photo_urls.append(max_size) 
-        return photo_urls
+            photos_info.append({"media_id": photo.get('id'), "owner_id": photo.get('owner_id'), "access_key": photo.get('access_key'), "url": max_size}) 
+        return photos_info
         
     
     def _user_info(self, user_id):
