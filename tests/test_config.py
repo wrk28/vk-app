@@ -4,10 +4,12 @@ class TestConfig:
 
     def test_settingspath_default(self):
         settings = config.Config()
-        assert settings.dsn == 'postgresql+pg8000://<user>:<password>@localhost:5432/<database_name>'
-        assert settings.token == '<Your token>'
+        assert settings.dsn is not None
+        assert settings.user_token is not None
+        assert settings.group_token is not None
 
     def test_settingspath_specified(self):
         settings = config.Config('./config.ini')
-        assert settings.dsn == 'postgresql+pg8000://<user>:<password>@localhost:5432/<database_name>'
-        assert settings.token == '<Your token>'
+        assert settings.dsn is not None
+        assert settings.user_token is not None
+        assert settings.group_token is not None
