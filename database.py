@@ -2,7 +2,6 @@ import sqlalchemy as sq
 from sqlalchemy import func
 from sqlalchemy.orm import sessionmaker
 from models import User, Requests, User_requests, Photos
-import models as m
 
 
 class DB_Utils:
@@ -89,9 +88,9 @@ class DB_Utils:
         link = f'https://vk.com/id{account.get("id")}'
         
         with self.Session() as session:
-            result = session.query(m.Requests.requests_id).filter(Requests.requests_id==requests_id).all()
+            result = session.query(Requests.requests_id).filter(Requests.requests_id==requests_id).all()
             if not result:
-                new_requests = m.Requests(requests_id=requests_id, 
+                new_requests = Requests(requests_id=requests_id, 
                                           first_name=first_name, 
                                           last_name=last_name, 
                                           sex=sex, 
@@ -105,19 +104,19 @@ class DB_Utils:
 
     def add_user_requests(self, user_id: str, requests_id: str) -> None:
         with self.Session() as session:
-            result = session.query(m.User_requests.requests_id).filter(User_requests.user_id == user_id, 
+            result = session.query(User_requests.requests_id).filter(User_requests.user_id == user_id, 
                                                                        User_requests.requests_id==requests_id).one_or_none()
             if not result:
                 count = session.query(func.count(User_requests.user_id)).filter(User_requests.user_id==user_id).scalar() + 1
-                new_user_requests = m.User_requests(user_id=user_id, requests_id=requests_id, number=count)
+                new_user_requests = User_requests(user_id=user_id, requests_id=requests_id, number=count)
                 session.add(new_user_requests)
                 session.commit()
 
 
     def add_favorite(self, user_id, requests_id):
         with self.Session() as session:
-            session.execute(sq.update(m.User_requests). \
-                            where(m.User_requests.user_id == user_id, m.User_requests.requests_id == requests_id). \
+            session.execute(sq.update(User_requests). \
+                            where(User_requests.user_id == user_id, User_requests.requests_id == requests_id). \
                                 values(favorite_list = 1))
             session.commit()
 
@@ -125,7 +124,7 @@ class DB_Utils:
     def add_photos(self, requests_id: str, photos: list):
         with self.Session() as session:
             for photo in photos:
-                photo = m.Photos(requests_id=requests_id, 
+                photo = Photos(requests_id=requests_id, 
                                  owner_id=photo.get('owner_id'),
                                  media_id=photo.get('media_id'),
                                  access_key=photo.get('access_key'),

@@ -1,6 +1,6 @@
-from database import DB_Utils
 import requests
 from datetime import datetime
+from database import DB_Utils
 from content import Content
 
 
@@ -41,10 +41,11 @@ class Data_Service:
     
 
     def check_user(self, user_id: str):
-        user_exists = self.db_utils.check_user(user_id=user_id)
-        if not user_exists:
+        found = self.db_utils.check_user(user_id=user_id)
+        if not found:
             user_info = self._user_info(user_id=user_id)
             self.db_utils.add_user(user_info=user_info)
+        return not found
     
 
     def _fetch_account(self, user_info: dict, offset: int) -> dict:
@@ -76,8 +77,6 @@ class Data_Service:
         url = r'https://api.vk.com/method/photos.get'
         params = {"access_token": self.user_token, "v": self.version, "owner_id": owner_id, "album_id": "profile", "extended": 1}
         response = requests.get(url=url, params=params).json()
-        if 'error' in response:
-            raise Exception(Content.ERROR_API_REQUEST)
         photos_info = []
         if 'error' not in response:
             items = response['response']['items']

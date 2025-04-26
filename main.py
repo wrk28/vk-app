@@ -1,13 +1,13 @@
-from config import settings
-from content import Content
-from database import DB_Utils
-from models import Base
-from services import Data_Service
 from random import randint
 from vk_api import VkApi
 from vk_api.vk_api import VkApiMethod
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
+from config import settings
+from content import Content
+from database import DB_Utils
+from models import Base
+from services import Data_Service
 
 
 class BotCommands:
@@ -21,16 +21,13 @@ class BotMessages:
     def __init__(self, bot_api: VkApiMethod, user_id: str) -> None:
         self.bot_api = bot_api
         self.user_id = user_id
-
         self.start_keyboard = VkKeyboard()
         self.start_keyboard.add_button(Content.START, VkKeyboardColor.PRIMARY)
-
         self.keyboard = VkKeyboard()
         self.keyboard.add_button(BotCommands.NEXT, VkKeyboardColor.PRIMARY)
         self.keyboard.add_button(BotCommands.ADD_FAVOURITES, VkKeyboardColor.SECONDARY)
         self.keyboard.add_button(BotCommands.SHOW_FAVOURITES, VkKeyboardColor.SECONDARY)
         
-
     def _random_id(self) -> int:
         return randint(1, 2**63-1)
     
