@@ -97,8 +97,8 @@ if __name__ == '__main__':
 
                     elif request == BotCommands.NEXT:
                         account, photos = data_service.next_account(user_id=bot.user_id)
-                        bot.message_photos(message=f'- {account.get("first_name")} {account.get("last_name")}\n- {account.get("link")}',
-                                           photos=photos)
+                        message = f'- {account.get("first_name")} {account.get("last_name")}\n- {account.get("link")}'
+                        bot.message_photos(message=message, photos=photos)
 
                     elif request == BotCommands.ADD_FAVOURITES:
                         name = data_service.add_to_favourites(user_id=event.user_id)
@@ -110,8 +110,8 @@ if __name__ == '__main__':
                         for item in favourites:
                             account = item['account']
                             photos = item['photos']
-                            bot.message_photos(message=f'-{account.get("first_name")} {account.get("last_name")}\n- {account.get("link")}',
-                                               photos=photos)
+                            message = f'-{account.get("first_name")} {account.get("last_name")}\n- {account.get("link")}'
+                            bot.message_photos(message=message, photos=photos)
 
                     else:
                         bot.message(Content.CHOOSE_NEXT_TO_START)
