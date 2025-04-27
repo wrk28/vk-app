@@ -10,14 +10,12 @@ from messages import BotCommands, BotMessages
 
 if __name__ == '__main__':
 
-    db_utils = DB_Utils(base=Base, dsn=settings.dsn)
-    
+    db_utils = DB_Utils(base=Base, dsn=settings.dsn)  
     data_service = Data_Service(group_token=settings.group_token, user_token=settings.user_token, db_utils=db_utils)
-
+    
     try:
         if settings.auto_remove:
-            data_service.remove_database()
-            
+            data_service.remove_database()           
         if settings.auto_create:
             data_service.create_database()
 
@@ -29,11 +27,9 @@ if __name__ == '__main__':
         for event in poll.listen():
             if event.type == VkEventType.MESSAGE_NEW:
                 if event.to_me:
-
                     request = event.text
                     new_user = data_service.check_user(user_id=event.user_id)
                     bot.set_user_id(user_id=event.user_id)
-
                     if new_user:
                         bot.start_message(Content.BOT_START_MESSAGE)
                     elif request == BotCommands.NEXT:
@@ -52,8 +48,7 @@ if __name__ == '__main__':
                             message = f'-{account.get("first_name")} {account.get("last_name")}\n- {account.get("link")}'
                             bot.message_photos(message=message, photos=photos)
                     else:
-                        bot.message(Content.CHOOSE_NEXT_TO_START)
-                        
+                        bot.message(Content.CHOOSE_NEXT_TO_START)                  
     except Exception as e:
         print(Content.PROGRAM_STOPPED.format(error=e))
     finally:
