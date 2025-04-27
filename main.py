@@ -28,8 +28,8 @@ class BotMessages:
         self.keyboard.add_button(BotCommands.ADD_FAVOURITES, VkKeyboardColor.SECONDARY)
         self.keyboard.add_button(BotCommands.SHOW_FAVOURITES, VkKeyboardColor.SECONDARY)
         
-    def _random_id(self) -> int:
-        return randint(1, 2**63-1)
+    def set_user_id(self, user_id: str) -> None:
+        self.user_id = user_id
     
     def start_message(self, message: str) -> None:
         self.bot_api.messages.send(user_id=self.user_id, 
@@ -53,6 +53,9 @@ class BotMessages:
                             attachment=attachments)
         else:
             self.message(message=f'{message}\n{Content.NO_PHOTOS}')
+
+    def _random_id(self) -> int:
+        return randint(1, 2**63-1)
 
     def _get_attachment_str(self, photos):
         attachment_list = []
@@ -84,13 +87,14 @@ if __name__ == '__main__':
         vk_session = VkApi(token=settings.group_token)
         poll = VkLongPoll(vk_session)
         bot_api = vk_session.get_api()
+        bot = BotMessages(bot_api=bot_api, user_id=None)
 
         for event in poll.listen():
             if event.type == VkEventType.MESSAGE_NEW:
                 if event.to_me:
                     request = event.text
                     new_user = data_service.check_user(user_id=event.user_id)
-                    bot = BotMessages(bot_api=bot_api, user_id=event.user_id)
+                    bot.set_user_id(user_id=event.user_id)
 
                     if new_user:
                         bot.start_message(Content.BOT_START_MESSAGE)

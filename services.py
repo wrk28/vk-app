@@ -18,8 +18,7 @@ class Data_Service:
 
     def next_account(self, user_id: str) -> dict:
         user_info = self._user_info(user_id)
-        offset = self.db_utils.get_offset(user_id)
-        account = self._fetch_account(user_info=user_info, offset=offset)
+        account = self._fetch_account(user_info=user_info)
         photos = self._fetch_photos(owner_id = account.get('id'))
         return account, photos
 
@@ -40,7 +39,7 @@ class Data_Service:
         return favourites
     
 
-    def check_user(self, user_id: str):
+    def check_user(self, user_id: str) -> bool:
         found = self.db_utils.check_user(user_id=user_id)
         if not found:
             user_info = self._user_info(user_id=user_id)
@@ -48,8 +47,21 @@ class Data_Service:
         return not found
     
 
-    def _fetch_account(self, user_info: dict, offset: int) -> dict:
+    def _fetch_account(self, user_info: dict) -> dict:
         url = r'https://api.vk.com/method/users.search'
+        search_params = self._get_search_params(user_info)
+        params = {"v": self.version, "access_token": self.user_token, **search_params}
+        response = requests.get(url=url, params=params)
+        if 'error' in response.json():
+            raise Exception(Content.ERROR_API_REQUEST)
+        items = response.json()['response']['items'][0]
+        account = self._get_account_info(items)
+        self.db_utils.add_requests(user_id=user_info['user_id'], account=account)
+        return account
+
+
+    def _get_search_params(self, user_info: dict) -> dict:
+        offset = self.db_utils.get_offset(user_info.get('user_id'))
         age_from = user_info['age'] - 5 if user_info['age'] else None
         age_to = user_info['age'] + 5 if user_info['age'] else None
         params = {
@@ -58,36 +70,33 @@ class Data_Service:
             "age_to": age_to,
             "sex": user_info['sex'],
             "count": 1,
-            "offset": offset,
-            "v": self.version,
-            "access_token": self.user_token
+            "offset": offset
         }
-        response = requests.get(url=url, params=params)
-        if 'error' in response.json():
-            raise Exception(Content.ERROR_API_REQUEST)
-        items = response.json()['response']['items'][0]
+        return params
+    
+
+    def _get_account_info(self, items: dict) -> dict:
         keys = {"id", "first_name", "last_name", "sex", "city_id", "age"}
         account = {key: items[key] for key in keys if key in items}
         account['link'] = f'https://vk.com/id{account.get("id")}'
-        self.db_utils.add_requests(user_id=user_info['user_id'], account=account)
         return account
     
 
-    def _fetch_photos(self, owner_id: str):
+    def _fetch_photos(self, owner_id: str) -> list:
         url = r'https://api.vk.com/method/photos.get'
         params = {"access_token": self.user_token, "v": self.version, "owner_id": owner_id, "album_id": "profile", "extended": 1}
         response = requests.get(url=url, params=params).json()
         photos_info = []
         if 'error' not in response:
             items = response['response']['items']
-            sorted_photos = sorted(items, key=lambda item: (item.get('likes', {}).get('count', 0) if 'likes' in item else 0), reverse=True)
-            top_photos = sorted_photos[:3]
-            photos_info = self._get_photos_info(top_photos)
+            photos_info = self._get_photos_info(items)
             self.db_utils.add_photos(requests_id=owner_id, photos=photos_info)
         return photos_info
 
 
-    def _get_photos_info(self, photos: list) -> list:
+    def _get_photos_info(self, items: list) -> list:
+        sorted_photos = sorted(items, key=lambda item: (item.get('likes', {}).get('count', 0) if 'likes' in item else 0), reverse=True)
+        photos = sorted_photos[:3]
         photos_info = []
         for photo in photos:
             sizes = photo['sizes']
@@ -96,30 +105,32 @@ class Data_Service:
         return photos_info
         
     
-    def _user_info(self, user_id):
+    def _user_info(self, user_id: str) -> dict:
         url = r'https://api.vk.com/method/users.get'
         params = {"access_token": self.group_token, "v": self.version, "user_ids": user_id, "fields": "bdate,city,sex"}
         response = requests.get(url=url, params=params)
         if 'error' in response.json():
             raise Exception(Content.ERROR_API_REQUEST)
-        response = response.json()['response'][0]
-        self.id = response.get('id')
-        self.city_id = response.get('city').get('id')
-        self.sex = response.get('sex')
-        bday = response.get('bday')
+        item = response.json()['response'][0]
+        return self._get_user_info(item)
+
+
+    def _get_user_info(self, item: dict) -> dict:
+        user_id = item.get('id')
+        city_id = item.get('city').get('id')
+        sex = item.get('sex')
+        bday = item.get('bday')
         if bday:
             current_time = datetime.now()
-            self.age = current_time.year - bday.year - ((current_time.month, current_time.day) < (bday.month, bday.day))
+            age = current_time.year - bday.year - ((current_time.month, current_time.day) < (bday.month, bday.day))
         else:
-            self.age = None
-        return {"user_id": self.id, "city_id": self.city_id, "sex": self.sex, "age": self.age}
+            age = None
+        return {"user_id": user_id, "city_id": city_id, "sex": sex, "age": age}
 
 
-    def create_database(self):
+    def create_database(self) -> None:
         self.db_utils.create_database()
 
 
-    def remove_database(self):
+    def remove_database(self) -> None:
         self.db_utils.remove_database()
-
-
