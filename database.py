@@ -12,7 +12,7 @@ class DB_Utils:
         self.Session = sessionmaker(bind=self.engine)
 
 
-    def close(self):
+    def close(self) -> None:
         self.Session.close_all()
 
 
@@ -78,7 +78,7 @@ class DB_Utils:
         self.base.metadata.drop_all(self.engine)
 
 
-    def add_requests(self, user_id: str, account: dict):
+    def add_requests(self, user_id: str, account: dict) -> None:
         requests_id = account.get('id')
         first_name = account.get('first_name')
         last_name = account.get('last_name')
@@ -113,7 +113,7 @@ class DB_Utils:
                 session.commit()
 
 
-    def add_favorite(self, user_id, requests_id):
+    def add_favorite(self, user_id, requests_id) -> None:
         with self.Session() as session:
             session.execute(sq.update(User_requests). \
                             where(User_requests.user_id == user_id, User_requests.requests_id == requests_id). \
@@ -121,7 +121,7 @@ class DB_Utils:
             session.commit()
 
 
-    def add_photos(self, requests_id: str, photos: list):
+    def add_photos(self, requests_id: str, photos: list) -> None:
         with self.Session() as session:
             for photo in photos:
                 photo = Photos(requests_id=requests_id, 
